@@ -32,8 +32,10 @@ class StripeWH_Handler:
             subject,
             body,
             settings.DEFAULT_FROM_EMAIL,
-            [cust_email]
+            [cust_email],
+            fail_silently = False
         )
+        
 
 
     def handle_event(self, event):
@@ -44,6 +46,7 @@ class StripeWH_Handler:
     
     def handle_payment_intent_succeeded(self, event):
         """ Handle payment_intent succeeded webhook event """
+        
         intent = event.data.object
         pid = intent.id
         bag = intent.metadata.bag
@@ -110,6 +113,7 @@ class StripeWH_Handler:
             
         if order_exists:
                 self._send_confirmation_email(order)
+                
                 return HttpResponse(
                     content =f'Webhook received: {event["type"]} | SUCCESS: Verified order already in database',
                     status = 200)
@@ -158,6 +162,7 @@ class StripeWH_Handler:
                     status=500
                 )
         self._send_confirmation_email(order)
+        
         return HttpResponse(
             content=f'Webhook receieved: {event['type']} | SUCCESS: created order in webhook',
             status=200)
